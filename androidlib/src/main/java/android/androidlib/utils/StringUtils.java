@@ -246,7 +246,7 @@ public class StringUtils {
     }
 
     /**
-     * @explain  把Object转化为double
+     * @explain 把Object转化为double
      * @author liuml.
      * @time 2017/12/5 10:19
      */
@@ -277,10 +277,35 @@ public class StringUtils {
             return Long.valueOf(value.toString());
         } catch (Exception e) {
             try {
-                return Double.valueOf(value.toString()).intValue();
+                return Long.valueOf(value.toString()).intValue();
             } catch (Exception e1) {
                 return defaultValue;
             }
         }
     }
+
+    /**
+     * 字符串截取
+     */
+    public final static String safeSubString(String str, int begin, int end) {
+        String temp = "";
+        try {
+
+            if (!isEmpty(str)) {
+                if (str.length() > begin) {
+                    temp = str.substring(begin,end);
+                }
+                return temp;
+            } else {
+                return temp;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return temp;
+        }
+
+    }
+
+
 }
