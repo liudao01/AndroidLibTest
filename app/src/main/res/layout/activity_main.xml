@@ -35,6 +35,7 @@
 
     <androidrn.androidlibtest.view.MyProgressBar
         android:id="@+id/my_progressbar"
+        style="@style/InitProgressBar"
         android:layout_width="match_parent"
         android:layout_height="20dp" />
 </LinearLayout>

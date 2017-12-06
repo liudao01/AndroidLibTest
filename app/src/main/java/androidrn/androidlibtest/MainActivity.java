@@ -11,7 +11,11 @@ import android.widget.TextView;
 
 import androidrn.androidlibtest.base.AppBaseActivity;
 import androidrn.androidlibtest.view.MyProgressBar;
-
+/**
+ * @explain 重构 夜未眠
+ * @author liuml.
+ * @time 2017/12/6 16:49
+ */
 public class MainActivity extends AppBaseActivity {
 
     private String firstLetter;
@@ -53,9 +57,7 @@ public class MainActivity extends AppBaseActivity {
         String cityName = "Tsdfasf";
         firstLetter = "";
         firstLetter = StringUtils.safeSubString(cityName, 3, 5);
-
         str = StringUtils.convertToString("10", "");
-
 
     }
 
