@@ -12,11 +12,17 @@ import android.support.v7.app.AppCompatActivity;
 public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        setContentView(setLayoutId());
         initVariables();
         initViews(savedInstanceState);
         loadData();
+        super.onCreate(savedInstanceState);
     }
+
+    /**
+     * 初始化Layout
+     */
+    protected abstract int setLayoutId();
 
     /**
      * 初始化变量，包括 Intent 带的数据和 Activity 内的变量。

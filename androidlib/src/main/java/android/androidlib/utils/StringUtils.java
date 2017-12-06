@@ -72,7 +72,7 @@ public class StringUtils {
      * @param strings
      * @return
      */
-    public static final String StringBuilde(String... strings) {
+    public static final String stringBulider(String... strings) {
         StringBuilder sb = new StringBuilder();
 
         for (String b : strings) {
@@ -246,6 +246,24 @@ public class StringUtils {
     }
 
     /**
+     * 安全转化类型  为String
+     *
+     * @param value
+     * @param defaultValue
+     * @return
+     */
+    public final static String convertToString(Object value, String defaultValue) {
+        if (value == null || "".equals(value.toString().trim())) {
+            return defaultValue;
+        }
+        try {
+            return String.valueOf(value.toString());
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    /**
      * @explain 把Object转化为double
      * @author liuml.
      * @time 2017/12/5 10:19
@@ -293,7 +311,7 @@ public class StringUtils {
 
             if (!isEmpty(str)) {
                 if (str.length() > begin) {
-                    temp = str.substring(begin,end);
+                    temp = str.substring(begin, end);
                 }
                 return temp;
             } else {
