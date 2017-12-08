@@ -11,9 +11,10 @@ import android.widget.TextView;
 
 import androidrn.androidlibtest.base.AppBaseActivity;
 import androidrn.androidlibtest.view.MyProgressBar;
+
 /**
- * @explain 重构 夜未眠
  * @author liuml.
+ * @explain 重构 夜未眠
  * @time 2017/12/6 16:49
  */
 public class MainActivity extends AppBaseActivity {
@@ -24,7 +25,6 @@ public class MainActivity extends AppBaseActivity {
     private String str;
     private Button btStartProgress;
     private MyProgressBar myProgressbar;
-
 
 
     private Message message;
@@ -85,7 +85,6 @@ public class MainActivity extends AppBaseActivity {
     protected void loadData() {
 
     }
-
 
 
     Runnable runnable = new Runnable() {

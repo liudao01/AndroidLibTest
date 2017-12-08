@@ -12,7 +12,7 @@ import android.widget.ProgressBar;
 
 /**
  * @author liuml.
- * @explain 自定义progressbar
+ * @explain 自定义progressbar 文字跟随进度
  * @time 2017/11/23 17:57
  */
 public class MyProgressBar extends ProgressBar {
