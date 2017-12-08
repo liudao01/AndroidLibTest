@@ -1,6 +1,6 @@
 package android.androidlib.utils;
 
-import android.androidlib.base.MyApplication;
+import android.androidlib.base.BaseApplication;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class sharedUtils {
 
-    private static SharedPreferences mySharedPreferences = MyApplication.getInstance().getSharedPreferences("user", Context.MODE_PRIVATE);
+    private static SharedPreferences mySharedPreferences = BaseApplication.getInstance().getSharedPreferences("user", Context.MODE_PRIVATE);
     private static Editor editor = mySharedPreferences.edit();
 
     private static final String CHANNELSET = "channelSet";
