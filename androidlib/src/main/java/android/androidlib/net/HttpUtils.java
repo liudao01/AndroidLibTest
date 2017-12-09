@@ -15,4 +15,8 @@ public class HttpUtils {
     public static void post(final String url) {
 
     }
+
+    public static void removeRequest(){
+
+    }
 }
