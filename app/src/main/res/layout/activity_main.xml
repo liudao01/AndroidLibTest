@@ -7,6 +7,63 @@
     android:orientation="vertical"
     tools:context="androidrn.androidlibtest.MainActivity">
 
+    <FrameLayout
+        android:id="@+id/fragment_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"></FrameLayout>
+
+    <RadioGroup
+        android:id="@+id/main_group"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/ic_launcher_background"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radio_one"
+            android:layout_width="0dp"
+            android:layout_height="49dp"
+            android:layout_weight="1"
+            android:background="@drawable/ic_launcher_background"
+            android:button="@null"
+            android:checked="true"
+            android:drawablePadding="2dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="首页"
+            android:textSize="13dp" />
+
+        <RadioButton
+            android:id="@+id/radio_two"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/ic_launcher_background"
+            android:button="@null"
+            android:checked="false"
+            android:drawablePadding="2dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="数据中心"
+            android:textSize="13dp" />
+
+
+        <RadioButton
+            android:id="@+id/radio_three"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/ic_launcher_background"
+            android:button="@null"
+            android:drawablePadding="2dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="我的"
+            android:textSize="13dp" />
+    </RadioGroup>
+
     <TextView
         android:id="@+id/tv_string_sub"
         android:layout_width="wrap_content"

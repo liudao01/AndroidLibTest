@@ -1,13 +1,21 @@
 package androidrn.androidlibtest;
 
+import android.androidlib.utils.FragmentController;
+import android.androidlib.utils.FragmentUtils;
 import android.androidlib.utils.StringUtils;
 import android.androidlib.utils.ThreadManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 import androidrn.androidlibtest.base.AppBaseActivity;
 import androidrn.androidlibtest.view.MyProgressBar;
@@ -25,10 +33,19 @@ public class MainActivity extends AppBaseActivity {
     private String str;
     private Button btStartProgress;
     private MyProgressBar myProgressbar;
+    private ArrayList<Fragment> fragments = new ArrayList<Fragment>();
 
-
+    private BlankFragment blankFragment;
+    private Fragment blankFragment2;
     private Message message;
     private int progress = 0;
+    private FrameLayout fragmentContent;
+
+    private FragmentManager fm;
+    private FragmentTransaction ft;
+    FragmentManager fragmentManager;
+    FragmentController fragmentController;
+
     private Handler handler = new Handler() {
 
         @Override
@@ -44,6 +61,8 @@ public class MainActivity extends AppBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        fragmentController.add(true, "1", R.id.fragment_content, blankFragment);
+        FragmentUtils.add(fragmentManager,blankFragment,R.id.fragment_content);
     }
 
     @Override
@@ -53,16 +72,21 @@ public class MainActivity extends AppBaseActivity {
 
     @Override
     protected void initVariables() {
-
+        fragmentController = new FragmentController(this);
         String cityName = "Tsdfasf";
         firstLetter = "";
         firstLetter = StringUtils.safeSubString(cityName, 3, 5);
         str = StringUtils.convertToString("10", "");
 
+        blankFragment = new BlankFragment();
+        blankFragment2 = BlankFragment2.newInstance("e", "e");
+        fragmentManager =getSupportFragmentManager();
+//        ft = fm.beginTransaction();
     }
 
     @Override
     protected void initViews(Bundle savedInstanceState) {
+        fragmentContent = (FrameLayout) findViewById(R.id.fragment_content);
         btStartProgress = (Button) findViewById(R.id.bt_start_progress);
         tvStringSub = (TextView) findViewById(R.id.tv_string_sub);
         tvStringSub.setText(StringUtils.stringBulider("字符串截取使用: ", firstLetter));
@@ -79,6 +103,8 @@ public class MainActivity extends AppBaseActivity {
                 ThreadManager.getNormalPool().execute(runnable);
             }
         });
+
+//        FragmentUtils.add(fragmentManager,blankFragment,R.id.fragment_content);
     }
 
     @Override
