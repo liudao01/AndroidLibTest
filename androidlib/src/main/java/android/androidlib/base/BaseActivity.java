@@ -12,11 +12,12 @@ import android.support.v7.app.AppCompatActivity;
 public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        //这里setContentView 必须放在最前面
         setContentView(setLayoutId());
+        super.onCreate(savedInstanceState);
         initVariables();
         initViews(savedInstanceState);
         loadData();
-        super.onCreate(savedInstanceState);
     }
 
     /**
