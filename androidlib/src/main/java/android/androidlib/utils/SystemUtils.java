@@ -77,7 +77,7 @@ public class SystemUtils {
 
 
     public static void phoneNumberAlertDef(final Context context, final String phoneNumber) {
-        AlertView mAlertView = new AlertView("拨打电话", "拨打" + phoneNumber, "取消", new String[]{"确认"},
+        AlertView mAlertView = new AlertView("拨打电话", "客服电话: " + phoneNumber, "取消", new String[]{"确认"},
                 null, context, AlertView.Style.Alert, new OnAlertItemClickListener() {
 
             @Override
