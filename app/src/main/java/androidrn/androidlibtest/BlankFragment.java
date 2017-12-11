@@ -1,10 +1,13 @@
 package androidrn.androidlibtest;
 
+import android.androidlib.utils.CleanUtils;
+import android.androidlib.utils.ToastUtils;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 
 public class BlankFragment extends Fragment {
@@ -17,6 +20,7 @@ public class BlankFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private Button btClearCache;
 
     public BlankFragment() {
         // Required empty public constructor
@@ -53,7 +57,26 @@ public class BlankFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_blank, container, false);
+        View view = inflater.inflate(R.layout.fragment_blank, container, false);
+        initview(view);
+        return view;
+    }
+
+    private void initview(View view) {
+
+        btClearCache = (Button) view.findViewById(R.id.bt_clear_cache);
+
+        btClearCache.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CleanUtils.cleanInternalDbs();
+                CleanUtils.cleanInternalSP();
+                if(CleanUtils.cleanExternalCache()){
+                    ToastUtils.showShort("清除成功");
+                }
+            }
+        });
+
     }
 
 }
