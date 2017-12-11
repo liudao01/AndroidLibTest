@@ -176,22 +176,7 @@ public class AlertView {
             tvAlertMsg.setGravity(Gravity.LEFT);
         }
 
-        if (title != null && style == Style.Alert && null != msg && (msg.contains("退出") || msg.contains("将在3个工作日内退还给您"))) {
-            tvAlertTitle.setText(title);
-            tvAlertTitle.setVisibility(View.VISIBLE);
-            tvAlertMsg.setTextColor(context.getResources().getColor(R.color.black));
-            tvAlertMsg.setGravity(Gravity.CENTER);
 
-        }
-
-
-        if (title != null && style == Style.Alert && null != msg && (msg.equals("您还未通实名认证，请先完善个人信息"))) {
-            tvAlertTitle.setText(title);
-            tvAlertTitle.setVisibility(View.VISIBLE);
-            tvAlertMsg.setTextColor(context.getResources().getColor(R.color.black));
-            tvAlertMsg.setGravity(Gravity.LEFT);
-
-        }
 
         if (title != null && style == Style.Alert && title.endsWith("title")) {
             String newTitle = title.replace("title", "");

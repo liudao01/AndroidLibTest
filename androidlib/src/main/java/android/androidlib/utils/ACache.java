@@ -613,8 +613,7 @@ public class ACache {
 	 * 清除所有数据
 	 */
 	public void clear() {
-		
-	
+
 		mCache.clear();
 	}
 
