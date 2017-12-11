@@ -40,7 +40,7 @@
             android:layout_marginRight="20dp"
             android:layout_weight="1"
             android:lineSpacingExtra="3dp"
-            android:textColor="@color/text_gray"
+            android:textColor="@color/black"
             android:textSize="16dp" />
 
     </LinearLayout>
