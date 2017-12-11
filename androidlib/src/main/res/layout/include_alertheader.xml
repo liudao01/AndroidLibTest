@@ -8,17 +8,40 @@
     <TextView
         android:id="@+id/tvAlertTitle"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/height_alert_title"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:background="@drawable/alert_title_bg"
         android:gravity="center"
         android:textColor="@color/textColor_alert_title"
-        android:textSize="@dimen/textSize_alert_title" />
+        android:paddingBottom="10dp"
+        android:textSize="@dimen/textSize_alert_title"
+        android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tvAlertMsg"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/marginBottom_alert_msg"
-        android:gravity="center"
-        android:textColor="@color/textColor_alert_msg"
-        android:textSize="@dimen/textSize_alert_msg" />
+        android:id="@+id/ll_content"
+        android:layout_marginTop="20dp">
+
+        <ImageView
+            android:id="@+id/alert_cry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="20dp"
+             />
+
+        <TextView
+            android:id="@+id/tvAlertMsg"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_weight="1"
+            android:lineSpacingExtra="3dp"
+            android:textColor="@color/text_gray"
+            android:textSize="16dp" />
+
+    </LinearLayout>
 </LinearLayout>

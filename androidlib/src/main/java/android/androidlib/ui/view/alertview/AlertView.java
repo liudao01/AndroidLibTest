@@ -4,6 +4,7 @@ import android.androidlib.R;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -14,14 +15,15 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 
 /**
  * Created by Sai on 15/8/9.
@@ -29,26 +31,43 @@ import java.util.List;
  * 点击取消按钮返回 －1，其他按钮从0开始算
  */
 public class AlertView {
-    public enum Style{
+
+    private boolean overlap; // true:attch之前不再判断是否已经dismiss
+    private View mLlContent;
+    private boolean isClickDismissing = true;//默认点击底部文字会消失
+
+    public boolean isOverlap() {
+        return overlap;
+    }
+
+    public void setOverlap(boolean overlap) {
+        this.overlap = overlap;
+    }
+
+    public static enum Style {
         ActionSheet,
         Alert
     }
+
     private final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM
     );
     public static final int HORIZONTAL_BUTTONS_MAXCOUNT = 2;
+    public static final String OTHERS = "others";
+    public static final String DESTRUCTIVE = "destructive";
+    public static final String CANCEL = "cancel";
+    public static final String TITLE = "title";
+    public static final String MSG = "msg";
     public static final int CANCELPOSITION = -1;//点击取消按钮返回 －1，其他按钮从0开始算
 
     private String title;
     private String msg;
-    private String[] destructive;
-    private String[] others;
     private List<String> mDestructive;
     private List<String> mOthers;
     private String cancel;
     private ArrayList<String> mDatas = new ArrayList<String>();
 
-    private WeakReference<Context> contextWeak;
+    private Context context;
     private ViewGroup contentContainer;
     private ViewGroup decorView;//activity的根View
     private ViewGroup rootView;//AlertView 的 根View
@@ -57,32 +76,17 @@ public class AlertView {
     private Style style = Style.Alert;
 
     private OnDismissListener onDismissListener;
-    private OnItemClickListener onItemClickListener;
-    private boolean isShowing;
+    private OnAlertItemClickListener onItemClickListener;
+    private boolean isDismissing;
 
     private Animation outAnim;
     private Animation inAnim;
     private int gravity = Gravity.CENTER;
+    private TextView tvCancle;
 
-    public AlertView(Builder builder) {
-        this.contextWeak = new WeakReference<>(builder.context);
-        this.style = builder.style;
-        this.title = builder.title;
-        this.msg = builder.msg;
-        this.cancel = builder.cancel;
-        this.destructive = builder.destructive;
-        this.others = builder.others;
-        this.onItemClickListener = builder.onItemClickListener;
-
-        initData(title, msg, cancel, destructive, others);
-        initViews();
-        init();
-        initEvents();
-    }
-
-    public AlertView(String title, String msg, String cancel, String[] destructive, String[] others, Context context, Style style,OnItemClickListener onItemClickListener){
-        this.contextWeak = new WeakReference<>(context);
-        if(style != null)this.style = style;
+    public AlertView(String title, String msg, String cancel, String[] destructive, String[] others, Context context, Style style, OnAlertItemClickListener onItemClickListener) {
+        this.context = context;
+        if (style != null) this.style = style;
         this.onItemClickListener = onItemClickListener;
 
         initData(title, msg, cancel, destructive, others);
@@ -98,38 +102,37 @@ public class AlertView {
 
         this.title = title;
         this.msg = msg;
-        if (destructive != null){
+        if (destructive != null) {
             this.mDestructive = Arrays.asList(destructive);
             this.mDatas.addAll(mDestructive);
         }
-        if (others != null){
+        if (others != null) {
             this.mOthers = Arrays.asList(others);
             this.mDatas.addAll(mOthers);
         }
-        if (cancel != null){
+        if (cancel != null) {
             this.cancel = cancel;
-            if(style == Style.Alert && mDatas.size() < HORIZONTAL_BUTTONS_MAXCOUNT){
-                this.mDatas.add(0,cancel);
+            if (style == Style.Alert && mDatas.size() < HORIZONTAL_BUTTONS_MAXCOUNT) {
+                this.mDatas.add(0, cancel);
             }
         }
 
     }
-    protected void initViews(){
-        Context context = contextWeak.get();
-        if(context == null) return;
+
+    protected void initViews() {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        decorView = (ViewGroup) ((Activity)context).getWindow().getDecorView().findViewById(android.R.id.content);
+        decorView = (ViewGroup) ((Activity) context).getWindow().getDecorView().findViewById(android.R.id.content);
         rootView = (ViewGroup) layoutInflater.inflate(R.layout.layout_alertview, decorView, false);
         rootView.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
         ));
         contentContainer = (ViewGroup) rootView.findViewById(R.id.content_container);
         int margin_alert_left_right = 0;
-        switch (style){
+        switch (style) {
             case ActionSheet:
                 params.gravity = Gravity.BOTTOM;
                 margin_alert_left_right = context.getResources().getDimensionPixelSize(R.dimen.margin_actionsheet_left_right);
-                params.setMargins(margin_alert_left_right,0,margin_alert_left_right,margin_alert_left_right);
+                params.setMargins(margin_alert_left_right, 0, margin_alert_left_right, margin_alert_left_right);
                 contentContainer.setLayoutParams(params);
                 gravity = Gravity.BOTTOM;
                 initActionSheetViews(layoutInflater);
@@ -137,196 +140,292 @@ public class AlertView {
             case Alert:
                 params.gravity = Gravity.CENTER;
                 margin_alert_left_right = context.getResources().getDimensionPixelSize(R.dimen.margin_alert_left_right);
-                params.setMargins(margin_alert_left_right,0,margin_alert_left_right,0);
+                if (!TextUtils.isEmpty(msg) && msg.contains("拍照")) margin_alert_left_right = 500;
+                params.setMargins(margin_alert_left_right, 0, margin_alert_left_right, 0);
                 contentContainer.setLayoutParams(params);
                 gravity = Gravity.CENTER;
                 initAlertViews(layoutInflater);
                 break;
         }
     }
-    protected void initHeaderView(ViewGroup viewGroup){
+
+    protected void initHeaderView(ViewGroup viewGroup) {
         loAlertHeader = (ViewGroup) viewGroup.findViewById(R.id.loAlertHeader);
+
         //标题和消息
         TextView tvAlertTitle = (TextView) viewGroup.findViewById(R.id.tvAlertTitle);
         TextView tvAlertMsg = (TextView) viewGroup.findViewById(R.id.tvAlertMsg);
-        if(title != null) {
+        mLlContent = viewGroup.findViewById(R.id.ll_content);
+
+        if (style == Style.Alert) {
+            ImageView mAlertImage = (ImageView) viewGroup.findViewById(R.id.alert_cry);
+            mAlertImage.setVisibility(View.GONE);
+            //    tvAlertTitle.setVisibility(View.VISIBLE);
+            tvAlertMsg.setGravity(Gravity.CENTER);
+        }
+
+        if (title != null && style != Style.Alert) {
             tvAlertTitle.setText(title);
-        }else{
+        } else {
             tvAlertTitle.setVisibility(View.GONE);
         }
-        if(msg != null) {
+
+        if (title != null && style == Style.Alert && title.contains("V")) {
+            tvAlertTitle.setText(title);
+            tvAlertTitle.setVisibility(View.VISIBLE);
+            tvAlertMsg.setGravity(Gravity.LEFT);
+        }
+
+        if (title != null && style == Style.Alert && null != msg && (msg.contains("退出") || msg.contains("将在3个工作日内退还给您"))) {
+            tvAlertTitle.setText(title);
+            tvAlertTitle.setVisibility(View.VISIBLE);
+            tvAlertMsg.setTextColor(context.getResources().getColor(R.color.black));
+            tvAlertMsg.setGravity(Gravity.CENTER);
+
+        }
+
+
+        if (title != null && style == Style.Alert && null != msg && (msg.equals("您还未通实名认证，请先完善个人信息"))) {
+            tvAlertTitle.setText(title);
+            tvAlertTitle.setVisibility(View.VISIBLE);
+            tvAlertMsg.setTextColor(context.getResources().getColor(R.color.black));
+            tvAlertMsg.setGravity(Gravity.LEFT);
+
+        }
+
+        if (title != null && style == Style.Alert && title.endsWith("title")) {
+            String newTitle = title.replace("title", "");
+            tvAlertTitle.setText(newTitle);
+            tvAlertTitle.setVisibility(View.VISIBLE);
+            tvAlertMsg.setGravity(Gravity.LEFT);
+        }
+
+
+        if (msg != null) {
             tvAlertMsg.setText(msg);
-        }else{
+        } else {
             tvAlertMsg.setVisibility(View.GONE);
         }
     }
-    protected void initListView(){
-        Context context = contextWeak.get();
-        if(context == null) return;
 
+    protected void initListView() {
         ListView alertButtonListView = (ListView) contentContainer.findViewById(R.id.alertButtonListView);
         //把cancel作为footerView
-        if(cancel != null && style == Style.Alert){
+        if (cancel != null && style == Style.Alert) {
             View itemView = LayoutInflater.from(context).inflate(R.layout.item_alertbutton, null);
             TextView tvAlert = (TextView) itemView.findViewById(R.id.tvAlert);
             tvAlert.setText(cancel);
             tvAlert.setClickable(true);
             tvAlert.setTypeface(Typeface.DEFAULT_BOLD);
-            tvAlert.setTextColor(context.getResources().getColor(R.color.textColor_alert_button_cancel));
+//            tvAlert.setTextColor(context.getResources().getColor(R.color.textColor_alert_button_cancel));
+            tvAlert.setTextColor(context.getResources().getColor(R.color.black));
             tvAlert.setBackgroundResource(R.drawable.bg_alertbutton_bottom);
             tvAlert.setOnClickListener(new OnTextClickListener(CANCELPOSITION));
             alertButtonListView.addFooterView(itemView);
         }
-        AlertViewAdapter adapter = new AlertViewAdapter(mDatas,mDestructive);
+        AlertViewAdapter adapter = new AlertViewAdapter(mDatas, mDestructive);
         alertButtonListView.setAdapter(adapter);
         alertButtonListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                if(onItemClickListener != null)onItemClickListener.onItemClick(AlertView.this,position);
+                if (onItemClickListener != null)
+                    onItemClickListener.onAlertItemClick(AlertView.this, position);
                 dismiss();
             }
         });
     }
+
     protected void initActionSheetViews(LayoutInflater layoutInflater) {
-        ViewGroup viewGroup = (ViewGroup) layoutInflater.inflate(R.layout.layout_alertview_actionsheet,contentContainer);
+        ViewGroup viewGroup = (ViewGroup) layoutInflater.inflate(R.layout.layout_alertview_actionsheet, contentContainer);
         initHeaderView(viewGroup);
 
         initListView();
         TextView tvAlertCancel = (TextView) contentContainer.findViewById(R.id.tvAlertCancel);
-        if(cancel != null){
+        if (cancel != null) {
             tvAlertCancel.setVisibility(View.VISIBLE);
             tvAlertCancel.setText(cancel);
         }
         tvAlertCancel.setOnClickListener(new OnTextClickListener(CANCELPOSITION));
     }
+
     protected void initAlertViews(LayoutInflater layoutInflater) {
-        Context context = contextWeak.get();
-        if(context == null) return;
 
         ViewGroup viewGroup = (ViewGroup) layoutInflater.inflate(R.layout.layout_alertview_alert, contentContainer);
         initHeaderView(viewGroup);
 
         int position = 0;
         //如果总数据小于等于HORIZONTAL_BUTTONS_MAXCOUNT，则是横向button
-        if(mDatas.size()<=HORIZONTAL_BUTTONS_MAXCOUNT){
+        if (mDatas.size() <= HORIZONTAL_BUTTONS_MAXCOUNT) {
             ViewStub viewStub = (ViewStub) contentContainer.findViewById(R.id.viewStubHorizontal);
             viewStub.inflate();
             LinearLayout loAlertButtons = (LinearLayout) contentContainer.findViewById(R.id.loAlertButtons);
-            for (int i = 0; i < mDatas.size(); i ++) {
+            for (int i = 0; i < mDatas.size(); i++) {
                 //如果不是第一个按钮
-                if (i != 0){
+                if (i != 0) {
                     //添加上按钮之间的分割线
                     View divier = new View(context);
                     divier.setBackgroundColor(context.getResources().getColor(R.color.bgColor_divier));
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int)context.getResources().getDimension(R.dimen.size_divier), LinearLayout.LayoutParams.MATCH_PARENT);
-                    loAlertButtons.addView(divier,params);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) context.getResources().getDimension(R.dimen.size_divier), LinearLayout.LayoutParams.MATCH_PARENT);
+                    loAlertButtons.addView(divier, params);
                 }
                 View itemView = LayoutInflater.from(context).inflate(R.layout.item_alertbutton, null);
                 TextView tvAlert = (TextView) itemView.findViewById(R.id.tvAlert);
                 tvAlert.setClickable(true);
 
                 //设置点击效果
-                if(mDatas.size() == 1){
+                if (mDatas.size() == 1) {
                     tvAlert.setBackgroundResource(R.drawable.bg_alertbutton_bottom);
-                }
-                else if(i == 0){//设置最左边的按钮效果
+                } else if (i == 0) {//设置最左边的按钮效果
                     tvAlert.setBackgroundResource(R.drawable.bg_alertbutton_left);
-                }
-                else if(i == mDatas.size() - 1){//设置最右边的按钮效果
+                } else if (i == mDatas.size() - 1) {//设置最右边的按钮效果
                     tvAlert.setBackgroundResource(R.drawable.bg_alertbutton_right);
                 }
                 String data = mDatas.get(i);
                 tvAlert.setText(data);
 
                 //取消按钮的样式
-                if (data == cancel){
-                    tvAlert.setTypeface(Typeface.DEFAULT_BOLD);
-                    tvAlert.setTextColor(context.getResources().getColor(R.color.textColor_alert_button_cancel));
+                if (data == cancel) {
+                    // tvAlert.setTypeface(Typeface.DEFAULT_BOLD);
+                    if (null != msg && (msg.contains("退出") || msg.equals("您还未通实名认证，请先完善个人信息"))) {
+                        tvAlert.setTextColor(context.getResources().getColor(R.color.black));
+                    } else {
+                        tvAlert.setTextColor(context.getResources().getColor(R.color.textColor_alert_button_cancel));
+                    }
                     tvAlert.setOnClickListener(new OnTextClickListener(CANCELPOSITION));
                     position = position - 1;
+                    tvCancle = tvAlert;
                 }
                 //高亮按钮的样式
-                else if (mDestructive!= null && mDestructive.contains(data)){
-                    tvAlert.setTextColor(context.getResources().getColor(R.color.textColor_alert_button_destructive));
+                else if (mDestructive != null && mDestructive.contains(data)) {
+                    if (null != msg && msg.contains("退出")) {
+                        tvAlert.setTextColor(context.getResources().getColor(R.color.black));
+                    } else {
+                        tvAlert.setTextColor(context.getResources().getColor(R.color.textColor_alert_button_cancel));
+                    }
                 }
 
                 tvAlert.setOnClickListener(new OnTextClickListener(position));
                 position++;
-                loAlertButtons.addView(itemView,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                loAlertButtons.addView(itemView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT, 1));
             }
-        }
-        else{
+        } else {
             ViewStub viewStub = (ViewStub) contentContainer.findViewById(R.id.viewStubVertical);
             viewStub.inflate();
             initListView();
         }
     }
+
     protected void init() {
         inAnim = getInAnimation();
         outAnim = getOutAnimation();
     }
+
+    public void setCancleBtnColor(int color) {
+        if (null != tvCancle)
+            tvCancle.setTextColor(color);
+    }
+
     protected void initEvents() {
     }
-    public AlertView addExtView(View extView){
+
+    public AlertView addExtView(View extView) {
+        if (mLlContent != null) {//隐藏美容用自己的
+            mLlContent.setVisibility(View.GONE);
+        }
         loAlertHeader.addView(extView);
         return this;
     }
+
+    /**
+     * @param extView
+     * @param isDismissing 点击是否取消
+     * @return
+     */
+    public AlertView addExtView(View extView, boolean isDismissing) {
+        if (mLlContent != null) {//隐藏美容用自己的
+            mLlContent.setVisibility(View.GONE);
+        }
+        this.isClickDismissing = isDismissing;
+        loAlertHeader.addView(extView);
+        return this;
+    }
+
     /**
      * show的时候调用
      *
      * @param view 这个View
      */
     private void onAttached(View view) {
-        isShowing = true;
         decorView.addView(view);
         contentContainer.startAnimation(inAnim);
     }
+
     /**
      * 添加这个View到Activity的根视图
      */
-    public void show() {
-        if (isShowing()) {
-            return;
+    public AlertView show() {
+        if (!overlap) {
+            if (isShowing()) {
+                return null;
+            }
         }
         onAttached(rootView);
+        return null;
     }
+
     /**
      * 检测该View是不是已经添加到根视图
      *
      * @return 如果视图已经存在该View返回true
      */
     public boolean isShowing() {
-        return rootView.getParent() != null && isShowing;
+        View view = decorView.findViewById(R.id.outmost_container);
+        return view != null;
     }
 
     public void dismiss() {
-        //消失动画
-        outAnim.setAnimationListener(outAnimListener);
-        contentContainer.startAnimation(outAnim);
-    }
-
-    public void dismissImmediately() {
-        decorView.removeView(rootView);
-        isShowing = false;
-        if(onDismissListener != null){
-            onDismissListener.onDismiss(this);
+        if (isDismissing) {
+            return;
         }
 
+        //消失动画
+        outAnim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                decorView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //从activity根视图移除
+                        decorView.removeView(rootView);
+                        isDismissing = false;
+                        if (onDismissListener != null) {
+                            onDismissListener.onDismiss(AlertView.this);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        contentContainer.startAnimation(outAnim);
+        isDismissing = true;
     }
 
     public Animation getInAnimation() {
-        Context context = contextWeak.get();
-        if(context == null) return null;
-
         int res = AlertAnimateUtil.getAnimationResource(this.gravity, true);
         return AnimationUtils.loadAnimation(context, res);
     }
 
     public Animation getOutAnimation() {
-        Context context = contextWeak.get();
-        if(context == null) return null;
-
         int res = AlertAnimateUtil.getAnimationResource(this.gravity, false);
         return AnimationUtils.loadAnimation(context, res);
     }
@@ -336,57 +435,43 @@ public class AlertView {
         return this;
     }
 
-    class OnTextClickListener implements View.OnClickListener{
+    class OnTextClickListener implements View.OnClickListener {
 
         private int position;
-        public OnTextClickListener(int position){
+
+        public OnTextClickListener(int position) {
             this.position = position;
         }
+
         @Override
         public void onClick(View view) {
-            if(onItemClickListener != null)onItemClickListener.onItemClick(AlertView.this,position);
-            dismiss();
+            if (onItemClickListener != null)
+                onItemClickListener.onAlertItemClick(AlertView.this, position);
+            if (isClickDismissing)
+                dismiss();
         }
     }
-    private Animation.AnimationListener outAnimListener = new Animation.AnimationListener() {
-        @Override
-        public void onAnimationStart(Animation animation) {
-
-        }
-
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            dismissImmediately();
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-
-        }
-    };
 
     /**
      * 主要用于拓展View的时候有输入框，键盘弹出则设置MarginBottom往上顶，避免输入法挡住界面
      */
-    public void setMarginBottom(int marginBottom){
-        Context context = contextWeak.get();
-        if(context == null) return;
-
+    public void setMarginBottom(int marginBottom) {
         int margin_alert_left_right = context.getResources().getDimensionPixelSize(R.dimen.margin_alert_left_right);
-        params.setMargins(margin_alert_left_right,0,margin_alert_left_right,marginBottom);
+        params.setMargins(margin_alert_left_right, 0, margin_alert_left_right, marginBottom);
         contentContainer.setLayoutParams(params);
     }
+
     public AlertView setCancelable(boolean isCancelable) {
         View view = rootView.findViewById(R.id.outmost_container);
 
         if (isCancelable) {
             view.setOnTouchListener(onCancelableTouchListener);
-        }
-        else{
+        } else {
             view.setOnTouchListener(null);
         }
         return this;
     }
+
     /**
      * Called when the user touch on black overlay in order to dismiss the dialog
      */
@@ -399,64 +484,4 @@ public class AlertView {
             return false;
         }
     };
-
-    /**
-     * Builder for arguments
-     */
-    public static class Builder {
-        private Context context;
-        private Style style;
-        private String title;
-        private String msg;
-        private String cancel;
-        private String[] destructive;
-        private String[] others;
-        private OnItemClickListener onItemClickListener;
-
-        public Builder setContext(Context context) {
-            this.context = context;
-            return this;
-        }
-
-        public Builder setStyle(Style style) {
-            if(style != null) {
-                this.style = style;
-            }
-            return this;
-        }
-
-        public Builder setTitle(String title) {
-            this.title = title;
-            return this;
-        }
-
-        public Builder setMessage(String msg) {
-            this.msg = msg;
-            return this;
-        }
-
-        public Builder setCancelText(String cancel) {
-            this.cancel = cancel;
-            return this;
-        }
-
-        public Builder setDestructive(String... destructive) {
-            this.destructive = destructive;
-            return this;
-        }
-
-        public Builder setOthers(String[] others) {
-            this.others = others;
-            return this;
-        }
-
-        public Builder setOnItemClickListener(OnItemClickListener onItemClickListener) {
-            this.onItemClickListener = onItemClickListener;
-            return this;
-        }
-
-        public AlertView build() {
-            return new AlertView(this);
-        }
-    }
 }

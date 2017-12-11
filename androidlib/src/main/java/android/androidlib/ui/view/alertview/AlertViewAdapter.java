@@ -10,13 +10,14 @@ import android.widget.TextView;
 
 import java.util.List;
 
+
 /**
  * Created by Sai on 15/8/9.
  */
-public class AlertViewAdapter extends BaseAdapter{
+public class AlertViewAdapter extends BaseAdapter {
     private List<String> mDatas;
     private List<String> mDestructive;
-    public AlertViewAdapter(List<String> datas,List<String> destructive){
+    public AlertViewAdapter(List<String> datas, List<String> destructive){
         this.mDatas =datas;
         this.mDestructive =destructive;
     }
@@ -61,7 +62,7 @@ public class AlertViewAdapter extends BaseAdapter{
         public Holder(View view){
             tvAlert = (TextView) view.findViewById(R.id.tvAlert);
         }
-        public void UpdateUI(Context context,String data,int position){
+        public void UpdateUI(Context context, String data, int position){
             tvAlert.setText(data);
             if (mDestructive!= null && mDestructive.contains(data)){
                 tvAlert.setTextColor(context.getResources().getColor(R.color.textColor_alert_button_destructive));

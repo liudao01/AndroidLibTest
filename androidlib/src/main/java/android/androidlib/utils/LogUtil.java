@@ -1,5 +1,6 @@
 package android.androidlib.utils;
 
+import android.androidlib.BuildConfig;
 import android.util.Log;
 /**
  * @explain log工具类 tag值可以直接过滤为当前类
@@ -7,7 +8,7 @@ import android.util.Log;
  * @time 2017/12/5 10:01
  */
 public class LogUtil {
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = BuildConfig.DEBUG;
 
     /**
      * Don't let anyone instantiate this class.
