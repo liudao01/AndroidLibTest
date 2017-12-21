@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
-
 /**
  * @author liuml
  * @explain 与业务无关的 Activity 基类
@@ -20,7 +18,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         //这里setContentView 必须放在最前面
         setContentView(setLayoutId());
         super.onCreate(savedInstanceState);
-        Fresco.initialize(this);
         BaseApplication.getInstance().addActivity(this);
         mContext = this;
         initVariables();
