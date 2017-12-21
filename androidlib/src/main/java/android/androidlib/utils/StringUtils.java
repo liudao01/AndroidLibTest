@@ -34,6 +34,20 @@ public class StringUtils {
     }
 
     /**
+     * 判断是否为空
+     *
+     * @param str
+     * @return
+     */
+    public static boolean isNotEmpty(CharSequence str) {
+        if (isEmpty(str)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * 字符串转整数
      *
      * @param str

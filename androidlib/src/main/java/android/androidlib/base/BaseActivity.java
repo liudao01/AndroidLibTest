@@ -1,7 +1,10 @@
 package android.androidlib.base;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
 
 /**
  * @author liuml
@@ -10,11 +13,16 @@ import android.support.v7.app.AppCompatActivity;
  */
 
 public abstract class BaseActivity extends AppCompatActivity {
+
+    public Context mContext;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         //这里setContentView 必须放在最前面
         setContentView(setLayoutId());
         super.onCreate(savedInstanceState);
+        Fresco.initialize(this);
+        BaseApplication.getInstance().addActivity(this);
+        mContext = this;
         initVariables();
         initViews(savedInstanceState);
         loadData();
@@ -41,4 +49,10 @@ public abstract class BaseActivity extends AppCompatActivity {
      * 调用 MobileAPI 获取数据。
      */
     protected abstract void loadData();
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        BaseApplication.getInstance().finishActivity(this);
+    }
 }

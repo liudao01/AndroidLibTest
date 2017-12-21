@@ -1,5 +1,6 @@
 package android.androidlib.utils;
 
+import android.androidlib.base.BaseApplication;
 import android.androidlib.ui.view.alertview.AlertView;
 import android.androidlib.ui.view.alertview.OnAlertItemClickListener;
 import android.app.Activity;
@@ -22,10 +23,6 @@ import android.text.TextUtils;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -93,13 +90,12 @@ public class SystemUtils {
     }
 
     /**
-     * 直接拨打 默认的不请求网络
+     * 直接拨打
      *
      * @param context
      * @param phoneNumber
      */
     public static void phoneNumberDef(Context context, String phoneNumber) {
-        String userid = String.valueOf(sharedUtils.getUserId());
         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber));
         if (intent.resolveActivity(context.getPackageManager()) != null) {
             context.startActivity(intent);
@@ -307,7 +303,7 @@ public class SystemUtils {
             intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
         } else {
-            intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             intent.setType("image/*");
         }
         context.startActivityForResult(intent, 10);
@@ -325,29 +321,6 @@ public class SystemUtils {
                 .getExternalStorageState());
     }
 
-
-    /**
-     * 从缓存获取可以进入卖车tab的城市
-     *
-     * @return
-     */
-    public static List<String> getConsignedCity() {
-        List<String> citys = new ArrayList<String>();
-        String cache = sharedUtils.getCache();
-        if (!TextUtils.isEmpty(cache)) {
-            try {
-                JSONObject jsonObject = new JSONObject(cache);
-                JSONArray jsonArraySix = jsonObject.optJSONArray("citykeys");//车型6
-                for (int i = 0; i < jsonArraySix.length(); i++) {
-                    String cityName = jsonArraySix.optJSONObject(i).optString("name");
-                    citys.add(cityName);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        return citys;
-    }
 
     public static boolean isStartGps(Context context) {
 
@@ -396,38 +369,6 @@ public class SystemUtils {
     }
 
 
-/*    */
-
-    /**
-     * 自动填写验证码
-     *//*
-    public static String getSmsFromPhone(long sendtime,Context context) {
-        String[] projection = new String[]{"date", "body"};
-        String where = " date >  " + (sendtime - 60 * 1000);//60s以内的短信
-        //先记录发送命令的时间，找这时间以后收到的短信  ，按时间降序排序
-        Cursor cur = context.getContentResolver().query(Uri.parse("content://sms/"), projection, where, null, "date desc");
-
-        if (null == cur) {
-
-            return "";
-        }
-        // 1458371840372   1458365678000
-        //只要一条，使用if,如果是读取所有的短信，使用while
-        if (cur.moveToNext()) {
-            String date = cur.getString(cur.getColumnIndex("date"));
-            String body = cur.getString(cur.getColumnIndex("body"));
-
-            //这里我是要获取短信中的验证码
-            Pattern pattern = Pattern.compile("(?<![0-9])([0-9]{" + 4 + "})(?![0-9])");
-            Matcher matcher = pattern.matcher(body);
-            if (matcher.find()) {
-                String res = matcher.group(0).substring(0, 4);
-                ToastUtils.showCenter(res);
-                return res;
-            }
-        }
-        return "";
-    }*/
     public static String onSmsReceive(Context context, Intent intent) {
         Object[] objs = (Object[]) intent.getExtras().get("pdus");
         for (Object obj : objs) {
@@ -453,18 +394,36 @@ public class SystemUtils {
         return "";
     }
 
+    public static int getScreenWidth(Context con) {
+        if (null == con){
+            con = BaseApplication.getInstance();
+        }
+        WindowManager wm = (WindowManager) con.getSystemService(Context.WINDOW_SERVICE);
 
+        int width = wm.getDefaultDisplay().getWidth();
+        return width;
+    }
+    public static int getScreenHeight(Context con) {
+        if (null == con){
+
+            con = BaseApplication.getInstance();
+        }
+        WindowManager wm = (WindowManager) con.getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth();
+        int height = wm.getDefaultDisplay().getHeight();
+        return height;
+    }
     /**
      * 获取手机型号
      *
      * @return
      */
     public static String getMobileModel() {
-        return android.os.Build.MODEL;
+        return Build.MODEL;
     }
 
     public static String getManufacturer() {
-        return android.os.Build.MANUFACTURER;
+        return Build.MANUFACTURER;
     }
 
     /**

@@ -1126,7 +1126,7 @@ public final class FragmentUtils {
     }
 
     public static class FragmentNode {
-        Fragment           fragment;
+        Fragment fragment;
         List<FragmentNode> next;
 
         public FragmentNode(final Fragment fragment, final List<FragmentNode> next) {

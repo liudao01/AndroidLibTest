@@ -35,6 +35,13 @@ public final class CleanUtils {
         return deleteFilesInDir(Utils.getApp().getCacheDir());
     }
 
+    public static boolean cleanAllCache() {
+        CleanUtils.cleanInternalDbs();
+        CleanUtils.cleanInternalSP();
+        CleanUtils.cleanExternalCache();
+        return deleteFilesInDir(Utils.getApp().getCacheDir());
+    }
+
     /**
      * 清除内部文件
      * <p>/data/data/com.xxx.xxx/files</p>
