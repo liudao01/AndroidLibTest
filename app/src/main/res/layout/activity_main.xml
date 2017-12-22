@@ -32,7 +32,7 @@
             android:drawablePadding="2dp"
             android:gravity="center"
             android:singleLine="true"
-            android:text="首页"
+            android:text="第一个Fragment"
             android:textSize="13dp" />
 
         <RadioButton
@@ -46,7 +46,7 @@
             android:drawablePadding="2dp"
             android:gravity="center"
             android:singleLine="true"
-            android:text="数据中心"
+            android:text="第二个Fragment"
             android:textSize="13dp" />
 
 
@@ -60,7 +60,7 @@
             android:drawablePadding="2dp"
             android:gravity="center"
             android:singleLine="true"
-            android:text="我的"
+            android:text="第三个Fragment"
             android:textSize="13dp" />
     </RadioGroup>
 

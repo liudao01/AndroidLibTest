@@ -15,5 +15,4 @@ public interface HttpEngine {
     void get(Context context, String url, Map<String, String> params, HttpCallBack callBack);
 
     void post(Context context, String url, Map<String, String> params, HttpCallBack callBack);
-    void download(Context context, String url, Map<String, String> params, HttpCallBack callBack);
 }

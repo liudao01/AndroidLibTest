@@ -1,5 +1,6 @@
 package androidrn.androidlibtest;
 
+import android.androidlib.net.XHttp;
 import android.androidlib.utils.FragmentController;
 import android.androidlib.utils.FragmentUtils;
 import android.androidlib.utils.StringUtils;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import androidrn.androidlibtest.base.AppBaseActivity;
+import androidrn.androidlibtest.network.AndroidNetEngine;
 import androidrn.androidlibtest.view.MyProgressBar;
 
 /**
@@ -61,6 +63,8 @@ public class MainActivity extends AppBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //初始
+        XHttp.init(new AndroidNetEngine());
 //        fragmentController.add(true, "1", R.id.fragment_content, blankFragment);
         FragmentUtils.add(fragmentManager,blankFragment,R.id.fragment_content);
     }
