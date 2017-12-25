@@ -50,6 +50,20 @@ public class XHttp implements HttpEngine {
         httpEngine.post(context, url, params, callBack);
     }
 
+    @Override
+    public void download(Context context, String url, Map<String, String> params, HttpCallBack callBack) {
+
+    }
+
+    @Override
+    public void removeAll() {
+        httpEngine.removeAll();
+    }
+
+    @Override
+    public void removeTag(Object obj) {
+        httpEngine.removeTag(obj);
+    }
 
 //    public void post(String url, Map<String, String> params, HttpCallBack callBack) {
 //        httpEngine.post(url,params,callBack);

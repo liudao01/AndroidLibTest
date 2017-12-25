@@ -72,7 +72,7 @@ public class AndroidNetEngine implements HttpEngine {
         Map<String, String> header = new HashMap<>();
         //默认的header头
         get.addHeaders(header);
-
+        get.setTag(context);
         get.setOkHttpClient(mOkHttpClient);
         ANRequest build = get.addQueryParameter(params).build();
 
@@ -150,6 +150,24 @@ public class AndroidNetEngine implements HttpEngine {
         }
 
     }
+
+    @Override
+    public void download(Context context, String url, Map<String, String> params, HttpCallBack callBack) {
+
+    }
+
+
+    @Override
+    public void removeAll() {
+        AndroidNetworking.cancelAll();
+    }
+
+    @Override
+    public void removeTag(Object obj) {
+        LogUtil.d("removeTag get teg context = "+obj);
+        AndroidNetworking.cancel(obj);
+    }
+
 
 
     /**
